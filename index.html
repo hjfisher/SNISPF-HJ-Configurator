@@ -185,8 +185,8 @@ pre{padding:1rem;font-size:11.5px;line-height:1.7;color:#c5d3f5;overflow-x:auto;
         <div class="row">
           <label>تعداد Slot فعال (ACTIVE_SLOTS)</label>
           <div class="range-row">
-            <input type="range" id="active_slots" min="1" max="20" value="3" oninput="upd('active_slots','slot-disp',1)">
-            <span class="range-val" id="slot-disp2">3</span>
+            <input type="range" id="active_slots" min="1" max="20" value="3" oninput="updSlots(this.value)">
+            <span class="range-val" id="slot-disp-inline">3</span>
           </div>
         </div>
         <div class="inline2">
@@ -400,9 +400,15 @@ function switchTab(t){
   document.querySelector('[onclick="switchTab(\''+t+'\')"]').classList.add('active');
   document.getElementById('panel-'+t).classList.add('active');
 }
+function updSlots(v){
+  document.getElementById('slot-disp').textContent=v;
+  document.getElementById('slot-disp-inline').textContent=v;
+  updateStats();
+}
 function upd(id,disp,factor){
   const v=document.getElementById(id).value;
-  document.getElementById(disp).textContent=(v*factor).toFixed(factor===1?0:2);
+  const val=(v*factor).toFixed(factor===1?0:2);
+  document.getElementById(disp).textContent=val;
   if(id==='active_slots'){document.getElementById('slot-disp').textContent=v;updateStats();}
 }
 function updFrag(){document.getElementById('frag-disp').textContent=(document.getElementById('fragment_delay').value*0.01).toFixed(2);}
