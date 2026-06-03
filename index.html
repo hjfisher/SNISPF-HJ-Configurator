@@ -1,3 +1,4 @@
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--c1:#0f1117;--c2:#1a1d27;--c3:#242838;--c4:#2e3347;--acc:#4f8ef7;--acc2:#7c5cfc;--grn:#22c97a;--red:#f05050;--txt:#e8ecf5;--txt2:#9ba4bc;--brd:#2e3347;--rad:10px}
@@ -340,4 +341,217 @@ pre{padding:1rem;font-size:11.5px;line-height:1.7;color:#c5d3f5;overflow-x:auto;
           <div class="row">
             <label>خروجی Command Line</label>
             <div class="toggle-row">
-              <span style="font-size:11px;color:var(--txt2)">نمایش
+              <span style="font-size:11px;color:var(--txt2)">نمایش دستور اجرا</span>
+              <label class="toggle"><input type="checkbox" id="show_cmd" checked><span class="slider-t"></span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <button class="btn-gen" onclick="generate()"><i class="ti ti-sparkles"></i> &nbsp; ساخت کانفیگ</button>
+  </div>
+
+  <div class="out-section" id="out-section">
+    <div class="out-head">
+      config.json
+      <div class="out-acts">
+        <button class="btn-sm" id="copy-btn" onclick="copyOut()"><i class="ti ti-copy"></i> کپی</button>
+        <button class="btn-sm" onclick="dlOut()"><i class="ti ti-download"></i> دانلود</button>
+      </div>
+    </div>
+    <pre id="out-pre"></pre>
+  </div>
+
+  <div class="out-section" id="cmd-section">
+    <div class="out-head">
+      دستور اجرا
+      <div class="out-acts">
+        <button class="btn-sm" id="cmd-copy" onclick="copyCmd()"><i class="ti ti-copy"></i> کپی</button>
+      </div>
+    </div>
+    <pre id="cmd-pre" style="color:#22c97a"></pre>
+  </div>
+</div>
+
+<script>
+const ips=[],snis=[];
+let method='combined';
+
+function switchTab(t){
+  document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(e=>e.classList.remove('active'));
+  document.querySelector(`[onclick="switchTab('${t}')"]`).classList.add('active');
+  document.getElementById('panel-'+t).classList.add('active');
+}
+
+function upd(id,disp,factor){
+  const v=document.getElementById(id).value;
+  document.getElementById(disp).textContent=(v*factor).toFixed(factor===1?0:2);
+  if(id==='active_slots')updateStats();
+}
+
+function updFrag(){
+  const v=document.getElementById('fragment_delay').value;
+  document.getElementById('frag-disp').textContent=(v*0.01).toFixed(2);
+}
+
+function updateStats(){
+  document.getElementById('ip-count').textContent=ips.length;
+  document.getElementById('sni-count').textContent=snis.length;
+  document.getElementById('pair-count').textContent=ips.length*snis.length;
+  const slots=document.getElementById('active_slots').value;
+  document.getElementById('slot-disp').textContent=slots;
+  document.getElementById('slot-val').textContent=slots;
+}
+
+function renderList(type){
+  const arr=type==='ip'?ips:snis;
+  const el=document.getElementById(type+'-list');
+  if(!arr.length){el.innerHTML='<div class="empty">هنوز چیزی اضافه نشده</div>';return;}
+  el.innerHTML=arr.map((v,i)=>`<div class="list-item"><span>${v}</span><span class="rm" onclick="removeItem('${type}',${i})">×</span></div>`).join('');
+  updateStats();
+}
+
+function addItem(type){
+  const inp=document.getElementById(type+'-input');
+  const v=inp.value.trim();
+  if(!v)return;
+  const arr=type==='ip'?ips:snis;
+  if(!arr.includes(v)){arr.push(v);renderList(type);}
+  inp.value='';inp.focus();
+}
+
+function removeItem(type,i){
+  (type==='ip'?ips:snis).splice(i,1);
+  renderList(type);
+}
+
+function clearList(type){
+  (type==='ip'?ips:snis).length=0;
+  renderList(type);
+}
+
+function addCFBatch(){
+  ['172.66.41.252','108.162.196.145','172.65.13.230','104.18.0.0','104.19.0.0','172.67.0.1','104.20.0.1'].forEach(ip=>{if(!ips.includes(ip))ips.push(ip);});
+  renderList('ip');
+}
+
+function addSNIBatch(){
+  ['github.com','google.com','microsoft.com','cloudflare.com','discord.com','telegram.org','twitter.com','reddit.com'].forEach(s=>{if(!snis.includes(s))snis.push(s);});
+  renderList('sni');
+}
+
+function selMethod(m){
+  method=m;
+  document.querySelectorAll('.mcard').forEach(e=>e.classList.remove('sel'));
+  document.getElementById('m-'+m).classList.add('sel');
+}
+
+function toggleSingle(){
+  const on=document.getElementById('single_mode').checked;
+  document.getElementById('single_fields').style.display=on?'block':'none';
+}
+
+function sh(s,c){return `<span class="${c}">${s}</span>`}
+
+function generate(){
+  const single=document.getElementById('single_mode').checked;
+  const obj={};
+  obj.LISTEN_HOST=document.getElementById('listen_host').value||'0.0.0.0';
+  obj.LISTEN_PORT=parseInt(document.getElementById('listen_port').value)||40443;
+  obj.CONNECT_PORT=parseInt(document.getElementById('connect_port').value)||443;
+  obj.BYPASS_METHOD=method;
+  obj.FRAGMENT_STRATEGY=document.getElementById('fragment_strategy').value;
+  obj.FRAGMENT_DELAY=parseFloat((document.getElementById('fragment_delay').value*0.01).toFixed(2));
+  obj.USE_TTL_TRICK=document.getElementById('use_ttl').checked;
+  obj.FAKE_SNI_METHOD=document.getElementById('fake_sni_method').value;
+  if(document.getElementById('no_raw').checked)obj.NO_RAW=true;
+  if(!single){
+    obj.ACTIVE_SLOTS=parseInt(document.getElementById('active_slots').value);
+    obj.HEALTH_CHECK_INTERVAL=parseInt(document.getElementById('health_interval').value);
+    obj.HEALTH_CHECK_TIMEOUT=parseInt(document.getElementById('health_timeout').value);
+    obj.PROBE_COUNT=parseInt(document.getElementById('probe_count').value);
+    obj.LOSS_THRESHOLD=parseFloat((document.getElementById('loss_threshold').value*0.01).toFixed(2));
+    obj.DEAD_THRESHOLD=parseFloat((document.getElementById('dead_threshold').value*0.01).toFixed(2));
+    obj.CONNECT_IPS=[...ips];
+    obj.FAKE_SNIS=[...snis];
+  }else{
+    const sip=document.getElementById('single_ip').value.trim();
+    const ssni=document.getElementById('single_sni').value.trim();
+    if(sip)obj.CONNECT_IP=sip;
+    if(ssni)obj.FAKE_SNI=ssni;
+  }
+
+  const json=JSON.stringify(obj,null,2);
+  let html=json.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  html=html.replace(/"([^"]+)":/g,(m,k)=>`${sh('"'+k+'"','key')}:`);
+  html=html.replace(/: "([^"]+)"/g,(m,v)=>`: ${sh('"'+v+'"','str')}`);
+  html=html.replace(/: (true|false)/g,(m,v)=>`: ${sh(v,'bool')}`);
+  html=html.replace(/: (-?\d+\.?\d*)/g,(m,v)=>`: ${sh(v,'num')}`);
+
+  document.getElementById('out-pre').innerHTML=html;
+  document.getElementById('out-pre').dataset.raw=json;
+  const sec=document.getElementById('out-section');
+  sec.classList.add('show');
+
+  if(document.getElementById('show_cmd').checked){
+    let cmd='snispf-hj --config config.json';
+    if(document.getElementById('log_level').value==='verbose')cmd+=' --verbose';
+    if(document.getElementById('log_level').value==='quiet')cmd+=' --quiet';
+    document.getElementById('cmd-pre').textContent=cmd;
+    document.getElementById('cmd-section').classList.add('show');
+  }
+
+  sec.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function copyOut(){
+  const txt=document.getElementById('out-pre').dataset.raw;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const b=document.getElementById('copy-btn');
+    b.classList.add('copied');b.innerHTML='<i class="ti ti-check"></i> کپی شد';
+    setTimeout(()=>{b.classList.remove('copied');b.innerHTML='<i class="ti ti-copy"></i> کپی';},2000);
+  });
+}
+
+function copyCmd(){
+  const txt=document.getElementById('cmd-pre').textContent;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const b=document.getElementById('cmd-copy');
+    b.classList.add('copied');b.innerHTML='<i class="ti ti-check"></i> کپی شد';
+    setTimeout(()=>{b.classList.remove('copied');b.innerHTML='<i class="ti ti-copy"></i> کپی';},2000);
+  });
+}
+
+function dlOut(){
+  const txt=document.getElementById('out-pre').dataset.raw;
+  const a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(txt);
+  a.download='config.json';a.click();
+}
+
+function toggleBulk(type){
+  const el=document.getElementById(type+'-bulk');
+  const open=el.style.display==='none';
+  el.style.display=open?'block':'none';
+  if(open)document.getElementById(type+'-bulk-input').focus();
+  else document.getElementById(type+'-bulk-input').value='';
+}
+
+function importBulk(type){
+  const raw=document.getElementById(type+'-bulk-input').value;
+  const arr=type==='ip'?ips:snis;
+  // Split by newline, comma, or semicolon; trim and filter empty
+  const items=raw.split(/[\n,;]+/).map(s=>s.trim()).filter(Boolean);
+  let added=0;
+  items.forEach(v=>{if(!arr.includes(v)){arr.push(v);added++;}});
+  renderList(type);
+  document.getElementById(type+'-bulk-input').value='';
+  document.getElementById(type+'-bulk').style.display='none';
+}
+
+renderList('ip');renderList('sni');
+</script>
