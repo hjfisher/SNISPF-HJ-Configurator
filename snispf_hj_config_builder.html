@@ -1,0 +1,555 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--c1:#0f1117;--c2:#1a1d27;--c3:#242838;--c4:#2e3347;--acc:#4f8ef7;--acc2:#7c5cfc;--grn:#22c97a;--red:#f05050;--txt:#e8ecf5;--txt2:#9ba4bc;--brd:#2e3347;--rad:10px}
+body{font-family:'JetBrains Mono',monospace;background:var(--c1);color:var(--txt);font-size:13px}
+.wrap{padding:0 0 2rem}
+.hdr{background:linear-gradient(135deg,#0f1117 0%,#1a1d27 100%);border-bottom:1px solid var(--brd);padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem}
+.logo{font-size:22px;font-weight:700;letter-spacing:2px;background:linear-gradient(90deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.badge{background:var(--grn);color:#0a1f12;font-size:10px;padding:3px 8px;border-radius:20px;font-weight:700;letter-spacing:1px}
+.tabs{display:flex;gap:2px;background:var(--c2);padding:0.5rem 1.5rem 0;border-bottom:1px solid var(--brd)}
+.tab{padding:0.5rem 1.1rem;cursor:pointer;border-radius:8px 8px 0 0;font-size:12px;font-weight:600;letter-spacing:0.5px;color:var(--txt2);transition:all 0.2s;border:1px solid transparent;border-bottom:none;position:relative;top:1px}
+.tab.active{color:var(--acc);background:var(--c3);border-color:var(--brd);border-bottom-color:var(--c3)}
+.tab:hover:not(.active){color:var(--txt);background:var(--c3)}
+.body{padding:1.25rem 1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.body.single{grid-template-columns:1fr}
+.section{background:var(--c2);border:1px solid var(--brd);border-radius:var(--rad);overflow:hidden}
+.sec-head{padding:0.75rem 1rem;background:var(--c3);border-bottom:1px solid var(--brd);font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--txt2);text-transform:uppercase;display:flex;align-items:center;gap:0.5rem}
+.sec-head i{font-size:14px;color:var(--acc)}
+.sec-body{padding:1rem}
+.row{display:flex;flex-direction:column;gap:4px;margin-bottom:0.9rem}
+.row:last-child{margin-bottom:0}
+label{font-size:11px;color:var(--txt2);font-weight:600;letter-spacing:0.5px;display:flex;align-items:center;gap:6px}
+.hint{font-size:10px;color:var(--txt2);opacity:0.6;font-weight:400}
+input[type=text],input[type=number],select,textarea{width:100%;background:var(--c1);border:1px solid var(--brd);border-radius:7px;color:var(--txt);font-family:'JetBrains Mono',monospace;font-size:12px;padding:7px 10px;transition:border-color 0.2s;outline:none}
+input[type=text]:focus,input[type=number]:focus,select:focus,textarea:focus{border-color:var(--acc)}
+select option{background:var(--c1)}
+textarea{min-height:90px;resize:vertical;line-height:1.5}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0}
+.toggle{position:relative;width:40px;height:22px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.slider-t{position:absolute;inset:0;background:#2e3347;border-radius:22px;cursor:pointer;transition:0.3s}
+.slider-t:before{content:'';position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:#9ba4bc;border-radius:50%;transition:0.3s}
+.toggle input:checked+.slider-t{background:var(--acc)}
+.toggle input:checked+.slider-t:before{transform:translateX(18px);background:#fff}
+.inline2{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem}
+.inline3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem}
+.list-box{background:var(--c1);border:1px solid var(--brd);border-radius:7px;padding:0.5rem;min-height:80px;max-height:200px;overflow-y:auto}
+.list-item{display:flex;align-items:center;justify-content:space-between;padding:4px 6px;border-radius:5px;font-size:12px;transition:background 0.15s}
+.list-item:hover{background:var(--c3)}
+.list-item .rm{cursor:pointer;color:var(--red);opacity:0.6;font-size:14px;line-height:1;padding:0 2px}
+.list-item .rm:hover{opacity:1}
+.add-row{display:flex;gap:6px;margin-top:6px}
+.add-row input{flex:1}
+.btn-add{background:var(--c3);border:1px solid var(--brd);color:var(--acc);border-radius:7px;padding:6px 12px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap;transition:all 0.2s;font-family:'JetBrains Mono',monospace}
+.btn-add:hover{background:var(--acc);color:#fff;border-color:var(--acc)}
+.empty{color:var(--txt2);font-size:11px;opacity:0.5;padding:6px;text-align:center}
+.footer{padding:0 1.5rem 0}
+.btn-gen{width:100%;padding:0.9rem;background:linear-gradient(135deg,var(--acc),var(--acc2));border:none;border-radius:var(--rad);color:#fff;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:1px;font-family:'JetBrains Mono',monospace;transition:opacity 0.2s}
+.btn-gen:hover{opacity:0.9}
+.btn-gen:active{opacity:0.8;transform:scale(0.99)}
+.out-section{margin:1rem 1.5rem 0;background:var(--c1);border:1px solid var(--brd);border-radius:var(--rad);overflow:hidden;display:none}
+.out-section.show{display:block}
+.out-head{padding:0.6rem 1rem;background:var(--c3);border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--txt2);font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.out-acts{display:flex;gap:6px}
+.btn-sm{background:var(--c2);border:1px solid var(--brd);color:var(--txt2);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px;font-family:'JetBrains Mono',monospace;transition:all 0.2s}
+.btn-sm:hover{border-color:var(--acc);color:var(--acc)}
+.btn-sm.copied{border-color:var(--grn);color:var(--grn)}
+pre{padding:1rem;font-size:11.5px;line-height:1.7;color:#c5d3f5;overflow-x:auto;white-space:pre;font-family:'JetBrains Mono',monospace}
+.tag{color:#7c5cfc}.str{color:#22c97a}.num{color:#f5a623}.bool{color:#4f8ef7}.key{color:#e8ecf5}
+.panel{display:none}.panel.active{display:block}
+.stat-row{display:flex;gap:8px;margin-bottom:1rem}
+.stat{flex:1;background:var(--c3);border:1px solid var(--brd);border-radius:8px;padding:0.6rem 0.8rem;text-align:center}
+.stat .n{font-size:20px;font-weight:700;color:var(--acc)}
+.stat .l{font-size:10px;color:var(--txt2);margin-top:2px}
+.chip{display:inline-block;background:var(--c3);border:1px solid var(--brd);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--txt2);margin:2px}
+.chip.active-chip{border-color:var(--acc);color:var(--acc)}
+.range-row{display:flex;align-items:center;gap:8px}
+.range-row input[type=range]{flex:1;accent-color:var(--acc)}
+.range-val{min-width:36px;text-align:right;color:var(--acc);font-weight:700}
+.method-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.mcard{background:var(--c1);border:1px solid var(--brd);border-radius:8px;padding:0.7rem;cursor:pointer;transition:all 0.2s;text-align:center}
+.mcard:hover{border-color:var(--acc);background:var(--c3)}
+.mcard.sel{border-color:var(--acc);background:#1a2440}
+.mcard .mt{font-size:12px;font-weight:700;color:var(--acc);margin-bottom:3px}
+.mcard .md{font-size:10px;color:var(--txt2);line-height:1.4}
+.warn{background:#2a1f0a;border:1px solid #f5a62340;border-radius:8px;padding:0.6rem 0.8rem;font-size:11px;color:#f5a623;margin-top:0.5rem;display:flex;align-items:flex-start;gap:6px}
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+
+<div class="wrap">
+  <div class="hdr">
+    <div class="logo">SNISPF-HJ</div>
+    <div class="badge">Config Builder</div>
+    <div style="margin-right:auto"></div>
+    <span style="font-size:11px;color:var(--txt2)">DPI Bypass Tool</span>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('network')"><i class="ti ti-network"></i> شبکه</div>
+    <div class="tab" onclick="switchTab('pool')"><i class="ti ti-database"></i> استخر اتصال</div>
+    <div class="tab" onclick="switchTab('bypass')"><i class="ti ti-shield-lock"></i> روش بایپس</div>
+    <div class="tab" onclick="switchTab('advanced')"><i class="ti ti-adjustments"></i> پیشرفته</div>
+  </div>
+
+  <div id="panel-network" class="panel active">
+    <div class="body">
+      <div class="section">
+        <div class="sec-head"><i class="ti ti-plug"></i> تنظیمات Listen</div>
+        <div class="sec-body">
+          <div class="row">
+            <label>آدرس Listen <span class="hint">— Host</span></label>
+            <input type="text" id="listen_host" value="0.0.0.0" placeholder="0.0.0.0">
+          </div>
+          <div class="row">
+            <label>پورت Listen</label>
+            <input type="number" id="listen_port" value="40443" min="1" max="65535">
+          </div>
+          <div class="warn"><i class="ti ti-info-circle"></i> برنامه شما باید به آدرس 127.0.0.1:PORT تنظیم شود</div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="sec-head"><i class="ti ti-server"></i> تنظیمات Connect</div>
+        <div class="sec-body">
+          <div class="row">
+            <label>پورت اتصال به سرور <span class="hint">— معمولاً 443</span></label>
+            <input type="number" id="connect_port" value="443" min="1" max="65535">
+          </div>
+          <div class="row">
+            <label>حالت Single-Pair (Legacy)</label>
+            <div class="toggle-row">
+              <span style="font-size:11px;color:var(--txt2)">برای حالت تک IP/SNI فعال کنید</span>
+              <label class="toggle"><input type="checkbox" id="single_mode" onchange="toggleSingle()"><span class="slider-t"></span></label>
+            </div>
+          </div>
+          <div id="single_fields" style="display:none">
+            <div class="row">
+              <label>IP مقصد</label>
+              <input type="text" id="single_ip" placeholder="172.66.41.252">
+            </div>
+            <div class="row">
+              <label>SNI مقصد</label>
+              <input type="text" id="single_sni" placeholder="github.com">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="panel-pool" class="panel">
+    <div class="body single">
+      <div class="stat-row">
+        <div class="stat"><div class="n" id="ip-count">0</div><div class="l">IP تعریف‌شده</div></div>
+        <div class="stat"><div class="n" id="sni-count">0</div><div class="l">SNI تعریف‌شده</div></div>
+        <div class="stat"><div class="n" id="pair-count">0</div><div class="l">ترکیب ممکن</div></div>
+        <div class="stat"><div class="n" id="slot-disp">3</div><div class="l">Slot فعال</div></div>
+      </div>
+    </div>
+    <div class="body">
+      <div class="section">
+        <div class="sec-head"><i class="ti ti-world"></i> لیست IP‌ها (CONNECT_IPS)</div>
+        <div class="sec-body">
+          <div class="list-box" id="ip-list"></div>
+          <div class="add-row">
+            <input type="text" id="ip-input" placeholder="مثال: 172.66.41.252" onkeydown="if(event.key==='Enter')addItem('ip')">
+            <button class="btn-add" onclick="addItem('ip')"><i class="ti ti-plus"></i> افزودن</button>
+          </div>
+          <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn-sm" onclick="addCFBatch()"><i class="ti ti-cloud"></i> IP‌های Cloudflare</button>
+            <button class="btn-sm" onclick="toggleBulk('ip')"><i class="ti ti-list-check"></i> وارد کردن لیست</button>
+            <button class="btn-sm" onclick="clearList('ip')"><i class="ti ti-trash"></i> پاک کردن</button>
+          </div>
+          <div id="ip-bulk" style="display:none;margin-top:8px">
+            <textarea id="ip-bulk-input" placeholder="هر IP را در یک خط جداگانه وارد کنید:&#10;172.66.41.252&#10;108.162.196.145&#10;104.18.0.0" style="min-height:100px;background:var(--c1);color:var(--txt)"></textarea>
+            <div style="display:flex;gap:6px;margin-top:6px">
+              <button class="btn-add" style="flex:1" onclick="importBulk('ip')"><i class="ti ti-plus"></i> افزودن همه</button>
+              <button class="btn-sm" onclick="toggleBulk('ip')">بستن</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="sec-head"><i class="ti ti-tags"></i> لیست SNI‌ها (FAKE_SNIS)</div>
+        <div class="sec-body">
+          <div class="list-box" id="sni-list"></div>
+          <div class="add-row">
+            <input type="text" id="sni-input" placeholder="مثال: github.com" onkeydown="if(event.key==='Enter')addItem('sni')">
+            <button class="btn-add" onclick="addItem('sni')"><i class="ti ti-plus"></i> افزودن</button>
+          </div>
+          <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn-sm" onclick="addSNIBatch()"><i class="ti ti-list"></i> SNI‌های پیشنهادی</button>
+            <button class="btn-sm" onclick="toggleBulk('sni')"><i class="ti ti-list-check"></i> وارد کردن لیست</button>
+            <button class="btn-sm" onclick="clearList('sni')"><i class="ti ti-trash"></i> پاک کردن</button>
+          </div>
+          <div id="sni-bulk" style="display:none;margin-top:8px">
+            <textarea id="sni-bulk-input" placeholder="هر SNI را در یک خط جداگانه وارد کنید:&#10;github.com&#10;google.com&#10;cloudflare.com" style="min-height:100px;background:var(--c1);color:var(--txt)"></textarea>
+            <div style="display:flex;gap:6px;margin-top:6px">
+              <button class="btn-add" style="flex:1" onclick="importBulk('sni')"><i class="ti ti-plus"></i> افزودن همه</button>
+              <button class="btn-sm" onclick="toggleBulk('sni')">بستن</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="sec-head"><i class="ti ti-activity"></i> تنظیمات استخر</div>
+        <div class="sec-body">
+          <div class="row">
+            <label>تعداد Slot فعال (ACTIVE_SLOTS)</label>
+            <div class="range-row">
+              <input type="range" id="active_slots" min="1" max="20" value="3" oninput="upd('active_slots','slot-disp',1)">
+              <span class="range-val" id="slot-disp">3</span>
+            </div>
+          </div>
+          <div class="inline2">
+            <div class="row">
+              <label>فاصله بررسی (ثانیه)</label>
+              <input type="number" id="health_interval" value="30" min="5" max="300">
+            </div>
+            <div class="row">
+              <label>Timeout بررسی (ثانیه)</label>
+              <input type="number" id="health_timeout" value="3" min="1" max="30">
+            </div>
+          </div>
+          <div class="inline2">
+            <div class="row">
+              <label>تعداد Probe</label>
+              <input type="number" id="probe_count" value="5" min="1" max="20">
+            </div>
+            <div class="row" style="display:none"></div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="sec-head"><i class="ti ti-heart-rate-monitor"></i> آستانه‌های سلامت</div>
+        <div class="sec-body">
+          <div class="row">
+            <label>آستانه از دست دادن بسته - Drain (LOSS_THRESHOLD)</label>
+            <div class="range-row">
+              <input type="range" id="loss_threshold" min="0" max="100" value="20" step="5" oninput="upd('loss_threshold','loss-disp',0.01)">
+              <span class="range-val" id="loss-disp">0.20</span>
+            </div>
+          </div>
+          <div class="row">
+            <label>آستانه مرگ - Dead (DEAD_THRESHOLD)</label>
+            <div class="range-row">
+              <input type="range" id="dead_threshold" min="0" max="100" value="80" step="5" oninput="upd('dead_threshold','dead-disp',0.01)">
+              <span class="range-val" id="dead-disp">0.80</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="panel-bypass" class="panel">
+    <div class="body single">
+      <div class="section">
+        <div class="sec-head"><i class="ti ti-shield-lock"></i> روش بایپس (BYPASS_METHOD)</div>
+        <div class="sec-body">
+          <div class="method-grid">
+            <div class="mcard sel" id="m-combined" onclick="selMethod('combined')">
+              <div class="mt">combined</div>
+              <div class="md">Fragment + Fake SNI<br>پیشنهاد شده</div>
+            </div>
+            <div class="mcard" id="m-fragment" onclick="selMethod('fragment')">
+              <div class="mt">fragment</div>
+              <div class="md">فقط تکه‌تکه کردن TLS<br>همه پلتفرم‌ها</div>
+            </div>
+            <div class="mcard" id="m-fake_sni" onclick="selMethod('fake_sni')">
+              <div class="mt">fake_sni</div>
+              <div class="md">SNI جعلی<br>نیاز به raw socket</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="body">
+      <div class="section">
+        <div class="sec-head"><i class="ti ti-scissors"></i> استراتژی Fragment</div>
+        <div class="sec-body">
+          <div class="row">
+            <label>Fragment Strategy</label>
+            <select id="fragment_strategy">
+              <option value="sni_split">sni_split — تقسیم در محل SNI (پیش‌فرض)</option>
+              <option value="half">half — دو نیمه مساوی</option>
+              <option value="multi">multi — قطعات ۵-۱۰ بایتی کوچک</option>
+              <option value="tls_record_frag">tls_record_frag — تقسیم لایه TLS Record</option>
+            </select>
+          </div>
+          <div class="row">
+            <label>تأخیر Fragment (ثانیه)</label>
+            <div class="range-row">
+              <input type="range" id="fragment_delay" min="0" max="100" value="10" step="1" oninput="updFrag()">
+              <span class="range-val" id="frag-disp">0.10</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="sec-head"><i class="ti ti-settings-2"></i> تنظیمات Fake SNI</div>
+        <div class="sec-body">
+          <div class="row">
+            <label>Fake SNI Method</label>
+            <select id="fake_sni_method">
+              <option value="prefix_fake">prefix_fake (پیش‌فرض)</option>
+              <option value="postfix_fake">postfix_fake</option>
+              <option value="custom">custom</option>
+            </select>
+          </div>
+          <div class="toggle-row">
+            <label style="font-size:11px;color:var(--txt2)">TTL Trick</label>
+            <label class="toggle"><input type="checkbox" id="use_ttl"><span class="slider-t"></span></label>
+          </div>
+          <div class="toggle-row">
+            <label style="font-size:11px;color:var(--txt2)">غیرفعال کردن Raw Socket</label>
+            <label class="toggle"><input type="checkbox" id="no_raw"><span class="slider-t"></span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="panel-advanced" class="panel">
+    <div class="body">
+      <div class="section">
+        <div class="sec-head"><i class="ti ti-terminal-2"></i> تنظیمات CLI</div>
+        <div class="sec-body">
+          <div class="row">
+            <label>Verbose Logging</label>
+            <select id="log_level">
+              <option value="normal">Normal (پیش‌فرض)</option>
+              <option value="verbose">Verbose — جزئیات کامل</option>
+              <option value="quiet">Quiet — فقط هشدارها</option>
+            </select>
+          </div>
+          <div class="warn"><i class="ti ti-terminal"></i> تنظیمات CLI در خروجی config.json اثر ندارند، فقط برای اطلاع نشان داده می‌شوند</div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="sec-head"><i class="ti ti-code"></i> توضیحات خروجی</div>
+        <div class="sec-body">
+          <div class="row">
+            <label>افزودن توضیحات به config</label>
+            <div class="toggle-row">
+              <span style="font-size:11px;color:var(--txt2)">افزودن comments در JSON</span>
+              <label class="toggle"><input type="checkbox" id="add_comments" checked><span class="slider-t"></span></label>
+            </div>
+          </div>
+          <div class="row">
+            <label>خروجی Command Line</label>
+            <div class="toggle-row">
+              <span style="font-size:11px;color:var(--txt2)">نمایش دستور اجرا</span>
+              <label class="toggle"><input type="checkbox" id="show_cmd" checked><span class="slider-t"></span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <button class="btn-gen" onclick="generate()"><i class="ti ti-sparkles"></i> &nbsp; ساخت کانفیگ</button>
+  </div>
+
+  <div class="out-section" id="out-section">
+    <div class="out-head">
+      config.json
+      <div class="out-acts">
+        <button class="btn-sm" id="copy-btn" onclick="copyOut()"><i class="ti ti-copy"></i> کپی</button>
+        <button class="btn-sm" onclick="dlOut()"><i class="ti ti-download"></i> دانلود</button>
+      </div>
+    </div>
+    <pre id="out-pre"></pre>
+  </div>
+
+  <div class="out-section" id="cmd-section">
+    <div class="out-head">
+      دستور اجرا
+      <div class="out-acts">
+        <button class="btn-sm" id="cmd-copy" onclick="copyCmd()"><i class="ti ti-copy"></i> کپی</button>
+      </div>
+    </div>
+    <pre id="cmd-pre" style="color:#22c97a"></pre>
+  </div>
+</div>
+
+<script>
+const ips=[],snis=[];
+let method='combined';
+
+function switchTab(t){
+  document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(e=>e.classList.remove('active'));
+  document.querySelector(`[onclick="switchTab('${t}')"]`).classList.add('active');
+  document.getElementById('panel-'+t).classList.add('active');
+}
+
+function upd(id,disp,factor){
+  const v=document.getElementById(id).value;
+  document.getElementById(disp).textContent=(v*factor).toFixed(factor===1?0:2);
+  if(id==='active_slots')updateStats();
+}
+
+function updFrag(){
+  const v=document.getElementById('fragment_delay').value;
+  document.getElementById('frag-disp').textContent=(v*0.01).toFixed(2);
+}
+
+function updateStats(){
+  document.getElementById('ip-count').textContent=ips.length;
+  document.getElementById('sni-count').textContent=snis.length;
+  document.getElementById('pair-count').textContent=ips.length*snis.length;
+  document.getElementById('slot-disp').textContent=document.getElementById('active_slots').value;
+}
+
+function renderList(type){
+  const arr=type==='ip'?ips:snis;
+  const el=document.getElementById(type+'-list');
+  if(!arr.length){el.innerHTML='<div class="empty">هنوز چیزی اضافه نشده</div>';return;}
+  el.innerHTML=arr.map((v,i)=>`<div class="list-item"><span>${v}</span><span class="rm" onclick="removeItem('${type}',${i})">×</span></div>`).join('');
+  updateStats();
+}
+
+function addItem(type){
+  const inp=document.getElementById(type+'-input');
+  const v=inp.value.trim();
+  if(!v)return;
+  const arr=type==='ip'?ips:snis;
+  if(!arr.includes(v)){arr.push(v);renderList(type);}
+  inp.value='';inp.focus();
+}
+
+function removeItem(type,i){
+  (type==='ip'?ips:snis).splice(i,1);
+  renderList(type);
+}
+
+function clearList(type){
+  (type==='ip'?ips:snis).length=0;
+  renderList(type);
+}
+
+function addCFBatch(){
+  ['172.66.41.252','108.162.196.145','172.65.13.230','104.18.0.0','104.19.0.0','172.67.0.1','104.20.0.1'].forEach(ip=>{if(!ips.includes(ip))ips.push(ip);});
+  renderList('ip');
+}
+
+function addSNIBatch(){
+  ['github.com','google.com','microsoft.com','cloudflare.com','discord.com','telegram.org','twitter.com','reddit.com'].forEach(s=>{if(!snis.includes(s))snis.push(s);});
+  renderList('sni');
+}
+
+function selMethod(m){
+  method=m;
+  document.querySelectorAll('.mcard').forEach(e=>e.classList.remove('sel'));
+  document.getElementById('m-'+m).classList.add('sel');
+}
+
+function toggleSingle(){
+  const on=document.getElementById('single_mode').checked;
+  document.getElementById('single_fields').style.display=on?'block':'none';
+}
+
+function sh(s,c){return `<span class="${c}">${s}</span>`}
+
+function generate(){
+  const single=document.getElementById('single_mode').checked;
+  const obj={};
+  obj.LISTEN_HOST=document.getElementById('listen_host').value||'0.0.0.0';
+  obj.LISTEN_PORT=parseInt(document.getElementById('listen_port').value)||40443;
+  obj.CONNECT_PORT=parseInt(document.getElementById('connect_port').value)||443;
+  obj.BYPASS_METHOD=method;
+  obj.FRAGMENT_STRATEGY=document.getElementById('fragment_strategy').value;
+  obj.FRAGMENT_DELAY=parseFloat((document.getElementById('fragment_delay').value*0.01).toFixed(2));
+  obj.USE_TTL_TRICK=document.getElementById('use_ttl').checked;
+  obj.FAKE_SNI_METHOD=document.getElementById('fake_sni_method').value;
+  if(document.getElementById('no_raw').checked)obj.NO_RAW=true;
+  if(!single){
+    obj.ACTIVE_SLOTS=parseInt(document.getElementById('active_slots').value);
+    obj.HEALTH_CHECK_INTERVAL=parseInt(document.getElementById('health_interval').value);
+    obj.HEALTH_CHECK_TIMEOUT=parseInt(document.getElementById('health_timeout').value);
+    obj.PROBE_COUNT=parseInt(document.getElementById('probe_count').value);
+    obj.LOSS_THRESHOLD=parseFloat((document.getElementById('loss_threshold').value*0.01).toFixed(2));
+    obj.DEAD_THRESHOLD=parseFloat((document.getElementById('dead_threshold').value*0.01).toFixed(2));
+    obj.CONNECT_IPS=[...ips];
+    obj.FAKE_SNIS=[...snis];
+  }else{
+    const sip=document.getElementById('single_ip').value.trim();
+    const ssni=document.getElementById('single_sni').value.trim();
+    if(sip)obj.CONNECT_IP=sip;
+    if(ssni)obj.FAKE_SNI=ssni;
+  }
+
+  const json=JSON.stringify(obj,null,2);
+  let html=json.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  html=html.replace(/"([^"]+)":/g,(m,k)=>`${sh('"'+k+'"','key')}:`);
+  html=html.replace(/: "([^"]+)"/g,(m,v)=>`: ${sh('"'+v+'"','str')}`);
+  html=html.replace(/: (true|false)/g,(m,v)=>`: ${sh(v,'bool')}`);
+  html=html.replace(/: (-?\d+\.?\d*)/g,(m,v)=>`: ${sh(v,'num')}`);
+
+  document.getElementById('out-pre').innerHTML=html;
+  document.getElementById('out-pre').dataset.raw=json;
+  const sec=document.getElementById('out-section');
+  sec.classList.add('show');
+
+  if(document.getElementById('show_cmd').checked){
+    let cmd='snispf-hj --config config.json';
+    if(document.getElementById('log_level').value==='verbose')cmd+=' --verbose';
+    if(document.getElementById('log_level').value==='quiet')cmd+=' --quiet';
+    document.getElementById('cmd-pre').textContent=cmd;
+    document.getElementById('cmd-section').classList.add('show');
+  }
+
+  sec.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function copyOut(){
+  const txt=document.getElementById('out-pre').dataset.raw;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const b=document.getElementById('copy-btn');
+    b.classList.add('copied');b.innerHTML='<i class="ti ti-check"></i> کپی شد';
+    setTimeout(()=>{b.classList.remove('copied');b.innerHTML='<i class="ti ti-copy"></i> کپی';},2000);
+  });
+}
+
+function copyCmd(){
+  const txt=document.getElementById('cmd-pre').textContent;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const b=document.getElementById('cmd-copy');
+    b.classList.add('copied');b.innerHTML='<i class="ti ti-check"></i> کپی شد';
+    setTimeout(()=>{b.classList.remove('copied');b.innerHTML='<i class="ti ti-copy"></i> کپی';},2000);
+  });
+}
+
+function dlOut(){
+  const txt=document.getElementById('out-pre').dataset.raw;
+  const a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(txt);
+  a.download='config.json';a.click();
+}
+
+function toggleBulk(type){
+  const el=document.getElementById(type+'-bulk');
+  const open=el.style.display==='none';
+  el.style.display=open?'block':'none';
+  if(open)document.getElementById(type+'-bulk-input').focus();
+  else document.getElementById(type+'-bulk-input').value='';
+}
+
+function importBulk(type){
+  const raw=document.getElementById(type+'-bulk-input').value;
+  const arr=type==='ip'?ips:snis;
+  // Split by newline, comma, or semicolon; trim and filter empty
+  const items=raw.split(/[\n,;]+/).map(s=>s.trim()).filter(Boolean);
+  let added=0;
+  items.forEach(v=>{if(!arr.includes(v)){arr.push(v);added++;}});
+  renderList(type);
+  document.getElementById(type+'-bulk-input').value='';
+  document.getElementById(type+'-bulk').style.display='none';
+}
+
+renderList('ip');renderList('sni');
+</script>
