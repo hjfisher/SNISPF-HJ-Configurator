@@ -212,6 +212,11 @@ pre{font-size:10px;padding:0.75rem}
           <div class="row"><label>Timeout بررسی (ثانیه)</label><input type="number" id="health_timeout" value="3" min="1" max="30"></div>
         </div>
         <div class="row"><label>تعداد Probe</label><input type="number" id="probe_count" value="5" min="1" max="20"></div>
+        <div class="inline3">
+          <div class="row"><label>MAX_DRAINING</label><input type="number" id="max_draining" value="5" min="1" max="50"></div>
+          <div class="row"><label>EVICT_EVERY</label><input type="number" id="evict_every" value="3" min="1" max="20"></div>
+          <div class="row"><label>EVICT_COUNT</label><input type="number" id="evict_count" value="2" min="1" max="20"></div>
+        </div>
       </div>
     </div>
     <div class="section">
@@ -484,6 +489,9 @@ function generate(){
     obj.PROBE_COUNT=parseInt(document.getElementById('probe_count').value);
     obj.LOSS_THRESHOLD=parseFloat((document.getElementById('loss_threshold').value*0.01).toFixed(2));
     obj.DEAD_THRESHOLD=parseFloat((document.getElementById('dead_threshold').value*0.01).toFixed(2));
+    obj.MAX_DRAINING=parseInt(document.getElementById('max_draining').value);
+    obj.EVICT_EVERY=parseInt(document.getElementById('evict_every').value);
+    obj.EVICT_COUNT=parseInt(document.getElementById('evict_count').value);
     const disc=document.getElementById('dynamic_ip_discovery').checked;
     if(document.getElementById('add_comments').checked)
       obj['_comment_discovery']='Dynamic IP discovery from Cloudflare CIDR ranges at runtime.';
